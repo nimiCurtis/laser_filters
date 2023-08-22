@@ -90,13 +90,13 @@ bool laser_filters::LaserScanBoxFilter::update(
     config_.box_frame,
     input_scan.header.frame_id,
     input_scan.header.stamp + ros::Duration().fromSec(input_scan.ranges.size()*input_scan.time_increment),
-    ros::Duration(1.0),
+    ros::Duration(0.5),
     ros::Duration(0.01),
     &error_msg
   );
   if(!success){
-    ROS_WARN("Could not get transform, irgnoring laser scan! %s", error_msg.c_str());
-    return false;
+    ROS_WARN_ONCE("Could not get transform, irgnoring laser filter but not scan! %s", error_msg.c_str());
+    return true;
   }
 
   try{
@@ -109,9 +109,9 @@ bool laser_filters::LaserScanBoxFilter::update(
     }
     else
     {
-      ROS_INFO_THROTTLE(.3, "Ignoring Scan: Waiting for TF");
+      ROS_INFO_THROTTLE(.3, "Ignoring filter: Waiting for TF");
     }
-    return false;
+    return true;
   }
   const int i_idx_c = sensor_msgs::getPointCloud2FieldIndex(laser_cloud, "index");
   const int x_idx_c = sensor_msgs::getPointCloud2FieldIndex(laser_cloud, "x");
